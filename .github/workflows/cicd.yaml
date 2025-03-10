@@ -1,0 +1,24 @@
+name: 自动打包部署
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 迁出代码
+        uses: actions/checkout@v4
+      - name: 安装npm依赖
+        run: npm install
+      - name: 打包
+        run: npm run build-only
+      - name: 上传到服务器
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.5
+        with:
+          username: 'root'
+          server: '1.95.219.220'
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          local_path: './dist/*'
+          remote_path: '/var/projectfront/dist-teacher'
+          rsyncArgs: '--exclude=favicon.*'
+          delete_remote_files: true
+          sftpArgs: '-o ConnectTimeout=5'
